@@ -1,5 +1,5 @@
 import axios from "axios";
-import { dummyUser, dummyFolders, dummyFiles, dummyShareLinks } from "../assets";
+import { dummyUser, dummyFolders, dummyFiles, dummyShareLinks } from "../assets/assets";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL || "",
