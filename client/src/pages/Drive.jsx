@@ -1,9 +1,49 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { useApp } from "../context/AppContext";
+import { useDrive } from "../hooks/useDrive";
+
+import Breadcrumbs from "../components/layout/Breadcrumbs";
+import FileGrid from "../components/files/FileGrid";
 
 const Drive = () => {
-  return (
-    <div>Drive</div>
-  )
-}
+  const navigate = useNavigate();
+  const { folderId } = useParams();
+  const { fetchDriveContent, setCurrentFolderId } = useApp();
+  // const { deleteItem: removeDriveItem } = useDrive();
 
-export default Drive
+  // Active item modal
+  const [previewFile, setPreviewFile] = useState(null);
+  const [shareItem, setShareItem] = useState(null);
+  const [renameItem, setRenameItem] = useState(null);
+  const [moveItem, setMoveItem] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
+
+  useEffect(() => {
+    const id = folderId || null;
+    setCurrentFolderId(id);
+    fetchDriveContent(id);
+  }, [folderId, fetchDriveContent, setCurrentFolderId]);
+
+  return (
+    <div className="space-y-4">
+      {/* Breadcrumbs */}
+      <Breadcrumbs />
+
+      {/* Folder & Files */}
+      <div className="space-y-6">
+        <FileGrid
+          onFolderClick={(folder) => navigate(`/drive/${folder.id}`)}
+          onPreviewFile={setPreviewFile}
+          onShareItem={setShareItem}
+          onRenameItem={setRenameItem}
+          onMoveItem={setMoveItem}
+          onDeleteItem={setDeleteItem}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Drive;
