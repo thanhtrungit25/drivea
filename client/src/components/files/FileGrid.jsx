@@ -67,10 +67,10 @@ const FileGrid = ({
                 key={file.id}
                 file={file}
                 onPreview={onPreviewFile}
-                onShare={() => onShareItem({...item, item_type: "file"})}
-                onRename={() => onRenameItem({...item, item_type: "file"})}
-                onMove={() => onMoveItem({...item, item_type: "file"})}
-                onDelete={() => onDeleteItem({...item, item_type: "file"})}
+                onShare={(item) => onShareItem({...item, item_type: "file"})}
+                onRename={(item) => onRenameItem({...item, item_type: "file"})}
+                onMove={(item) => onMoveItem({...item, item_type: "file"})}
+                onDelete={(item) => onDeleteItem({...item, item_type: "file"})}
               />
             ))}
           </div>

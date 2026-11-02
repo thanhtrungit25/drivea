@@ -7,7 +7,7 @@ const Breadcrumbs = () => {
   const { breadcrumbs } = useApp();
 
   return (
-    <div className="flex items-center gap-1 text-sm text-slate-50 py-3 overflow-x-auto no-scrollbar">
+    <div className="flex items-center gap-1 text-sm text-slate-500 py-3 overflow-x-auto no-scrollbar">
       {breadcrumbs.map((item, index) => {
         const isLast = index === breadcrumbs.length - 1;
         const path = item.id ? `/drive/${item.id}` : "/";
@@ -23,7 +23,7 @@ const Breadcrumbs = () => {
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition shrink-0 ${
                 isLast
                   ? "text-slate-900 font-medium bg-white border border-slate-300/50"
-                  : "hover:text-slate-900 hover:bg-slate-900"
+                  : "hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
               {index === 0 && (
