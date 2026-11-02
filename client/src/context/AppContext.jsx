@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import toast from "react-hot-toast";
 import api from "../config/api";
 
@@ -26,7 +32,7 @@ export const AppProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name_asc");
 
-  const fetchDriveContent = useCallback(() => {
+  const fetchDriveContent = useCallback(
     async (folderId = currentFolderId, search = searchQuery, sort = sortBy) => {
       if (!user) return;
       setIsDriveLoading(true);
@@ -34,19 +40,22 @@ export const AppProvider = ({ children }) => {
         const parentParam = folderId || "null";
         const [folderRes, fileRes, detailRes] = await Promise.all([
           api.get("/api/folders", { params: { parent_id: parentParam } }),
-          api.get("/api/files", { params: { folder_id: parentParam, search, sort } }),
+          api.get("/api/files", {
+            params: { folder_id: parentParam, search, sort },
+          }),
           folderId ? api.get(`/api/folders/${folderId}`) : null,
         ]);
         setFolders(folderRes.data.folders);
-        setFiles(folderRes.data.files);
+        setFiles(fileRes.data.files);
         setBreadcrumbs(detailRes?.data?.breadcrumbs || ROOT_BREADCRUMB);
-      } catch (error) {
+      } catch {
         toast.error("Error loading drive contents");
       } finally {
         setIsDriveLoading(false);
       }
-    }
-  }, [user, currentFolderId, searchQuery, sortBy]);
+    },
+    [user, currentFolderId, searchQuery, sortBy],
+  );
 
   // Refresh User Profile & Storage Stats
   const refreshUser = useCallback(async () => {
@@ -61,8 +70,7 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    refreshUser()
-      .finally(() => setIsLoading(false));
+    refreshUser().finally(() => setIsLoading(false));
   }, []);
 
   // Auth actions helper
@@ -132,11 +140,7 @@ export const AppProvider = ({ children }) => {
     setSortBy,
   };
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  )
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
 export const useApp = () => useContext(AppContext);

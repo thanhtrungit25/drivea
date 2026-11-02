@@ -1,0 +1,163 @@
+import toast from "react-hot-toast";
+import api from "../config/api";
+import { useApp } from "../context/AppContext";
+
+const isFolderItem = (item) =>
+  item?.item_type === "folder" ||
+  (!item?.mime_type && item?.path !== undefined);
+
+export function useDrive() {
+  const {
+    fetchDriveContent,
+    refreshUser,
+    currentFolderId,
+    isUploading,
+    setIsUploading,
+    uploadProgress,
+    setUploadProgress,
+  } = useApp();
+
+  const runAction = async (apiCall, successMsg, errorMsg, afterSuccess) => {
+    try {
+      const { data } = await apiCall();
+      setUser(data.user);
+      if (successMsg) toast.success(successMsg);
+      if (afterSuccess) await afterSuccess(res?.data);
+
+      return true;
+    } catch (error) {
+      toast.error(error.response?.data?.error || errorMsg);
+      return false;
+    }
+  };
+
+  // File upload with simulated progress
+  const uploadFiles = async (fileLists, folder_id = currentFolderId) => {
+    if (!fileLists?.length) return;
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const totalSize = Array.from(fileLists).reduce(
+      (acc, f) => acc + (f.size || 0),
+      0,
+    );
+    const step = 92 / Math.max(12, totalSize / 409715.2);
+    const interval = setInterval(() => {
+      setUploadProgress((p) => (p >= 92 ? p : Math.min(92, p + step)));
+    }, 100);
+
+    const formData = new FormData();
+    Array.from(fileLists).forEach((f) => formData.append("files", f));
+    if (folder_id) {
+      formData.append("folder_id", folder_id);
+    }
+
+    try {
+      const { data } = await api.post("/api/files/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      clearInterval(interval);
+      setUploadProgress(100);
+      await new Promise((r) => setTimeout(r, 300));
+      toast.success(`${data.files.length} file(s) uploaded successfully!`);
+      await fetchDriveContent(folder_id);
+      await refreshUser();
+    } catch (err) {
+      clearInterval(interval);
+      toast.error(err.response?.data?.error || "File upload failed");
+    } finally {
+      clearInterval(interval);
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  // Create folder
+  const createFolder = (name, parent_id = currentFolderId) => {
+    runAction(
+      api.post("/api/folders", { name, parent_id }),
+      "Folder created.",
+      "Error creating folder.",
+      () => fetchDriveContent(parent_id),
+    );
+  };
+
+  // Polymorphic operations (accepts file or folder item / id)
+  const renameItem = (item, newName) => {
+    const isFolder = isFolderItem(item);
+    const endpoint = isFolder ? "folders" : "files";
+    const id = item.id || item;
+
+    return runAction(
+      api.patch(`/api/${endpoint}/${id}/rename`, { name: newName }),
+      `${isFolder ? "Folder" : "File"} renamed.`,
+      "Error renaming item",
+      () => fetchDriveContent(),
+    );
+  };
+
+  const moveItem = (item, targetFolderId) => {
+    const isFolder = isFolderItem(item);
+    const endpoint = isFolder ? "folders" : "files";
+    const payload = isFolder
+      ? { target_parent: targetFolderId }
+      : {
+          target_folder: targetFolderId,
+        };
+
+    return runAction(
+      api.patch(`/api/${endpoint}/${id}/move`, payload),
+      `${isFolder ? "Folder" : "File"} moved.`,
+      "Error moving item",
+      () => fetchDriveContent(),
+    );
+  };
+
+  const deleteItem = (item) => {
+    const isFolder = isFolderItem(item);
+    const endpoint = isFolder ? "folders" : "files";
+    const id = item.id || item;
+
+    return runAction(
+      api.delete(`/api/${endpoint}/${id}`, payload),
+      `${isFolder ? "Folder" : "File"} moved to trash.`,
+      "Error deleting item",
+      () => fetchDriveContent(),
+    );
+  };
+
+  const restoreItem = (item) => {
+    const endpoint = isFolderItem(item) ? "folders" : "files";
+    const id = item.id || item;
+
+    return runAction(
+      api.post(`/api/${endpoint}/${id}/restore`),
+      "Item restored.",
+      "Error restoring item",
+    );
+  };
+
+  const permanentDeleteItem = (item) => {
+    const endpoint = isFolderItem(item) ? "folders" : "files";
+    const id = item.id || item;
+
+    return runAction(
+      api.delete(`/api/${endpoint}/${id}/permanent`),
+      "Item permanently deleted.",
+      "Error deleting item",
+      () => refreshUser(),
+    );
+  };
+
+  return {
+    uploadFiles,
+    createFolder,
+    renameItem,
+    moveItem,
+    deleteItem,
+    restoreItem,
+    permanentDeleteItem,
+    isUploading,
+    uploadProgress,
+  };
+}
