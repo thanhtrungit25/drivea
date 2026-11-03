@@ -19,10 +19,9 @@ export function useDrive() {
 
   const runAction = async (apiCall, successMsg, errorMsg, afterSuccess) => {
     try {
-      const { data } = await apiCall();
-      setUser(data.user);
+      const res = await apiCall();
       if (successMsg) toast.success(successMsg);
-      if (afterSuccess) await afterSuccess(res?.data);
+      if (afterSuccess) await afterSuccess(res.data);
 
       return true;
     } catch (error) {
@@ -75,7 +74,7 @@ export function useDrive() {
   // Create folder
   const createFolder = (name, parent_id = currentFolderId) => {
     runAction(
-      api.post("/api/folders", { name, parent_id }),
+      () => api.post("/api/folders", { name, parent_id }),
       "Folder created.",
       "Error creating folder.",
       () => fetchDriveContent(parent_id),
@@ -89,7 +88,7 @@ export function useDrive() {
     const id = item.id || item;
 
     return runAction(
-      api.patch(`/api/${endpoint}/${id}/rename`, { name: newName }),
+      () => api.patch(`/api/${endpoint}/${id}/rename`, { name: newName }),
       `${isFolder ? "Folder" : "File"} renamed.`,
       "Error renaming item",
       () => fetchDriveContent(),
@@ -104,9 +103,10 @@ export function useDrive() {
       : {
           target_folder: targetFolderId,
         };
+    const id = item.id || item;
 
     return runAction(
-      api.patch(`/api/${endpoint}/${id}/move`, payload),
+      () => api.patch(`/api/${endpoint}/${id}/move`, payload),
       `${isFolder ? "Folder" : "File"} moved.`,
       "Error moving item",
       () => fetchDriveContent(),
@@ -119,7 +119,7 @@ export function useDrive() {
     const id = item.id || item;
 
     return runAction(
-      api.delete(`/api/${endpoint}/${id}`, payload),
+      () => api.delete(`/api/${endpoint}/${id}`),
       `${isFolder ? "Folder" : "File"} moved to trash.`,
       "Error deleting item",
       () => fetchDriveContent(),
@@ -131,7 +131,7 @@ export function useDrive() {
     const id = item.id || item;
 
     return runAction(
-      api.post(`/api/${endpoint}/${id}/restore`),
+      () => api.post(`/api/${endpoint}/${id}/restore`),
       "Item restored.",
       "Error restoring item",
     );
@@ -142,7 +142,7 @@ export function useDrive() {
     const id = item.id || item;
 
     return runAction(
-      api.delete(`/api/${endpoint}/${id}/permanent`),
+      () => api.delete(`/api/${endpoint}/${id}/permanent`),
       "Item permanently deleted.",
       "Error deleting item",
       () => refreshUser(),

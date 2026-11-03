@@ -5,7 +5,7 @@ import { ItemDropdown } from "../ui/ItemDropdown";
 
 const FileCard = ({ file, onPreview, onShare, onRename, onMove, onDelete }) => {
   return (
-    <div className="group relative bg-white border-slate-200 hover:border-orange-200 rounded-2xl p-4 transition-all duration-200 cursor-pointer flex items-center justify-between">
+    <div className="group relative min-w-xs bg-white border-slate-200 hover:border-orange-200 rounded-2xl p-4 transition-all duration-200 cursor-pointer flex items-center justify-between">
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
           {getFileIcon(file.mime_type, "size-6")}
