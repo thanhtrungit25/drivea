@@ -49,7 +49,11 @@ function TrashItemCard({item, isFolder, onRestore, onDelete}) {
           className="p-1.5 rounded-lg text-slate-500 hover:text-red-600
         hover:bg-red-50 transition"
           title="Delete permanently"
-          onClick={() => onDelete(item)}
+          onClick={() => {
+            if (confirm("Are you sure you wan to delete permanently this item?") == true) {
+              onDelete(item)
+            }
+          }}
         >
           <TrashIcon className="size-4" />
         </button>
