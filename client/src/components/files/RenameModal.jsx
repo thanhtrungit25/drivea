@@ -19,6 +19,7 @@ const RenameModal = ({ item, isOpen, onClose }) => {
 
     setIsLoading(true);
     await renameItem(item, name.trim());
+    setIsLoading(false)
     onClose();
   };
 
