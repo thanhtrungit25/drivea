@@ -26,7 +26,7 @@ export const AppProvider = ({ children }) => {
   const [breadcrumbs, setBreadcrumbs] = useState(ROOT_BREADCRUMB);
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
-  const [isDriveLoading, setIsDriveLoading] = useState(false);
+  const [isDriveLoading, setIsDriveLoading] = useState(false);  
 
   // Filter & Sort state
   const [searchQuery, setSearchQuery] = useState("");
