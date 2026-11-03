@@ -73,7 +73,7 @@ export function useDrive() {
 
   // Create folder
   const createFolder = (name, parent_id = currentFolderId) => {
-    runAction(
+    return runAction(
       () => api.post("/api/folders", { name, parent_id }),
       "Folder created.",
       "Error creating folder.",

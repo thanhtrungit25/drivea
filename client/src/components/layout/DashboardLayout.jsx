@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import CreateFolderModal from "../folders/CreateFolderModal";
 
 const DashboardLayout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -18,14 +19,18 @@ const DashboardLayout = () => {
 
       {/* Main Content Workspace */}
       <div className="flex flex-col flex-1 md:pl-64">
-        <Header
-          onMobileMenuToggle={() => setIsMobileOpen(!isMobileOpen)}
-        />
+        <Header onMobileMenuToggle={() => setIsMobileOpen(!isMobileOpen)} />
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>
+
+      {/* Create Folder Modal */}
+      <CreateFolderModal
+        isOpen={isCreateFolderOpen}
+        onClose={() => setIsCreateFolderOpen(false)}
+      />
     </div>
   );
 };

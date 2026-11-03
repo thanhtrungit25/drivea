@@ -21,8 +21,11 @@ const FilePreview = ({ file, onClose }) => {
       .then(({ data }) => {
         if (isMounted) setPreviewUrl(data.url);
       })
-      .catch(() => {
-        if (isMounted) setError("Failed to load file preview");
+      .catch((err) => {
+        if (isMounted) {
+          const message = err.response?.data?.error;
+          setError(typeof message === "string" ? message : "Failed to load file preview");
+        }
       })
       .finally(() => {
         if (isMounted) setIsLoading(false);
@@ -68,6 +71,7 @@ const FilePreview = ({ file, onClose }) => {
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+              aria-label="Close preview"
             >
               <XIcon className="size-5" />
             </button>
