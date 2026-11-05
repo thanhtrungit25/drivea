@@ -1,5 +1,6 @@
 import { sql } from "../config/db.js";
 import {
+  permanentDeleteFolderHierarchy,
   restoreFolderHierarchy,
   softDeleteFolderHierarchy,
 } from "../services/storageService.js";
@@ -93,7 +94,7 @@ export const getFolderDetails = async (req, res) => {
     const ancestorMap = new Map(ancestors.map((a) => [a.id, a.name]));
     const breadcrumbs = [
       { id: null, name: "My Drive" },
-      ancestorIds.map((aid) => ({ id: aid, name: ancestorMap.get(aid) ?? "" })),
+      ...ancestorIds.map((aid) => ({ id: aid, name: ancestorMap.get(aid) ?? "" })),
     ];
 
     return res.status(200).json({ folder, breadcrumbs });
@@ -141,7 +142,7 @@ export const moveFolder = async (req, res) => {
         WHERE id = ${folderId} AND owner_id = ${req.user.id} AND is_trashed = false`;
 
     if (!folder) {
-      return res.status(500).json({ error: error.message });
+      return res.status(404).json({ error: error.message });
     }
 
     let newPath = [];
